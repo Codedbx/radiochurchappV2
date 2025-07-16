@@ -26,7 +26,7 @@ export function PhoneSection() {
       <div className="space-y-4">
         <Button 
           onClick={handleCall}
-          className="w-full bg-gradient-to-r from-phone-red to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
+          className="w-full bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
         >
           <div className="flex items-center justify-center gap-3">
             <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors duration-300">

@@ -5,6 +5,7 @@ import { ServiceButtons } from '@/components/ServiceButtons';
 import { CommentSection } from '@/components/CommentSection';
 import { ChatWidget } from '@/components/ChatWidget';
 import { UpcomingPrograms } from '@/components/UpcomingPrograms';
+import CommentButton from './components/CommentButton';
 
 const App = () => {
   return (
@@ -14,11 +15,11 @@ const App = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
         <div className="container mx-auto px-4 py-12 relative z-10">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
+          <div className="text-center mb-8 space-y-3">
+            <h1 className="text-2xl md:text-6xl font-bold text-white">
               Christ Embassy Nigeria
             </h1>
-            <p className="text-white/80 text-xl mb-2">
+            <p className="text-white/80 text-lg">
               South South Zone 1 - Online Radio Church
             </p>
             <p className="text-white/60 text-sm">
@@ -27,7 +28,7 @@ const App = () => {
           </div>
 
           {/* Featured Radio Player */}
-          <div className="max-w-2xl mx-auto mb-16">
+          <div className="max-w-2xl mx-auto">
             <RadioPlayer />
           </div>
         </div>
@@ -48,7 +49,7 @@ const App = () => {
 
 
           {/* Right Side - Service Actions */}
-          <div className="xl:col-span-3 sticky top-32">
+          <div className="xl:col-span-3 sticky top-4 self-start">
             <ServiceButtons />
           </div>
         </div>
@@ -75,7 +76,10 @@ const App = () => {
       </div>
 
       {/* Chat Widget */}
-      <ChatWidget />
+      {/* <ChatWidget /> */}
+
+      {/* Comment button */}
+      <CommentButton />
     </div>
   );
 };

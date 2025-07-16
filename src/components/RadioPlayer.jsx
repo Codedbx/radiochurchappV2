@@ -24,7 +24,7 @@ export function RadioPlayer() {
         <div className="text-center">
             <div className="relative inline-block mb-4">
                 <div className="absolute inset-0 bg-gradient-primary rounded-full blur-xl opacity-50"></div>
-                <div className="relative bg-gradient-primary p-4 rounded-full">
+                <div className="">
                     {/* <Radio className="w-8 h-8 text-white" /> */}
                     <img src="/images/logo.png" className='h-32 w-44' alt="logo" />
                 </div>
@@ -48,7 +48,7 @@ export function RadioPlayer() {
                 <p className="text-gray-400 text-sm mb-2">Christ Embassy Nigeria South South Zone 1</p>
             </div>
 
-            <div className="bg-muted/50 rounded-full px-4 py-3 flex items-center gap-4 min-w-[400px] shadow-sm">
+            <div className="bg-violet-700/60 bg rounded-full px-4 py-3 flex items-center gap-4 max-w-[400px] lg:max-w-full shadow-sm">
                 {/* Play/Pause Button */}
                 <Button 
                     onClick={togglePlay}
@@ -83,15 +83,6 @@ export function RadioPlayer() {
                     className="rounded-full w-8 h-8 p-0 hover:bg-muted"
                 >
                     <Volume2 className="w-4 h-4" />
-                </Button>
-
-                {/* More Options */}
-                <Button 
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full w-8 h-8 p-0 hover:bg-muted"
-                >
-                    <MoreHorizontal className="w-4 h-4" />
                 </Button>
             </div>
         </div>

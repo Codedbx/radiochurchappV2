@@ -27,20 +27,18 @@ export function CommentSection() {
   ]);
 
   const [newComment, setNewComment] = useState('');
-  const [userName, setUserName] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (newComment.trim() && userName.trim()) {
+    if (newComment.trim()) {
       const comment = {
         id: comments.length + 1,
-        name: userName,
+        name: "Anonymous",
         message: newComment,
         time: "Just now"
       };
       setComments([comment, ...comments]);
       setNewComment('');
-      setUserName('');
     }
   };
 
@@ -78,32 +76,6 @@ export function CommentSection() {
 
       {/* Comment Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="userName" className="block text-sm font-semibold text-gray-700 mb-2">
-              Your Name
-            </label>
-            <input
-              type="text"
-              id="userName"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-          <div className="md:flex md:items-end">
-            <Button 
-              type="submit"
-              className="w-full md:h-12 bg-gradient-accent hover:scale-105 text-white font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Post Comment
-            </Button>
-          </div>
-        </div>
-        
         <div>
           <label htmlFor="comment" className="block text-sm font-semibold text-gray-700 mb-2">
             Your Message
@@ -114,9 +86,19 @@ export function CommentSection() {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Share your thoughts, prayer requests, or testimonies..."
             className="w-full resize-none border-2 border-gray-200 focus:border-primary rounded-2xl p-4 text-gray-700 placeholder:text-gray-400 transition-colors duration-300"
-            rows={4}
+            rows={8}
             required
           />
+        </div>
+        
+        <div className="flex justify-end">
+          <Button 
+            type="submit"
+            className="bg-gradient-accent hover:scale-105 text-white font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl px-8"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Post Comment
+          </Button>
         </div>
       </form>
     </Card>

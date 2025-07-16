@@ -55,7 +55,7 @@ export function ServiceButtons() {
 
   return (
     <div className="space-y-4">
-      <div className="text-center mb-8">
+      <div className="mb-8">
         <h3 className="text-2xl font-bold text-white mb-2">
           Quick Access
         </h3>
@@ -75,7 +75,7 @@ export function ServiceButtons() {
               <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors duration-300">
                 <service.icon className="w-5 h-5" />
               </div>
-              <span className="text-left flex-1 leading-tight">{service.title}</span>
+              <span className="text-left flex-1 leading-tight whitespace-break-spaces">{service.title}</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </a>
           </Button>
