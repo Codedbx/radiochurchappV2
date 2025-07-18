@@ -184,10 +184,10 @@ export default function DesktopRadioApp({
                         <img src="/images/logo.png" alt="logo" />
                     </div>
                     </div>
-                    <CardTitle className="text-2xl font-bold bg-gray-800 bg-clip-text text-transparent">
+                    <CardTitle className="text-2xl font-bold text-foreground">
                     Online Radio Church
                     </CardTitle>
-                    <p className="text-slate-600 dark:text-slate-400 text-lg max-w-xs">
+                    <p className="text-slate-600 dark:text-slate-400 text-lg max-w-xs mx-auto">
                     Christ Embassy Nigeria South South Zone 1
                     </p>
                     <div className="flex items-center justify-center gap-2 mt-2">

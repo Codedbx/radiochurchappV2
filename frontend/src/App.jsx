@@ -390,7 +390,7 @@ const App = () => {
               <DrawerTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex flex-col items-center gap-2 h-auto py-3 px-6 rounded-2xl hover:bg-muted/50 transition-all"
+                  className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300 h-auto py-3 px-6 rounded-2xl hover:bg-muted/50 transition-all"
                 >
                   <MessageCircle className="h-6 w-6" />
                   <span className="text-sm">Comment</span>
@@ -470,7 +470,7 @@ const App = () => {
               <DrawerTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex flex-col items-center gap-2 h-auto py-3 px-6 rounded-2xl hover:bg-muted/50 transition-all"
+                  className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300 h-auto py-3 px-6 rounded-2xl hover:bg-muted/50 transition-all"
                 >
                   <Phone className="h-6 w-6" />
                   <span className="text-sm">Call In</span>
