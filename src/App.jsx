@@ -95,7 +95,8 @@ const App = () => {
             >
               <div className="flex items-center gap-1">
                 <div className="w-10 h-10 bg-gradient-to-br from-violet-700 to-violet-700/70 rounded-full flex items-center justify-center">
-                  <div className="w-8 h-8 bg-white rounded-full animate-pulse" />
+                  <div className="w-8 h-8 absolute bg-white rounded-full animate-pulse" />
+                  <img src="/images/loveworld-logo.png" className="w-6 h-6 z-50" alt="logo" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">Online Radio Church</h2>
@@ -149,7 +150,7 @@ const App = () => {
                   variant="ghost"
                   size="icon"
                   onClick={toggleLike}
-                  className={`h-12 w-12 rounded-full ${isLiked ? "text-red-500" : "text-muted-foreground"} hover:scale-110 transition-all`}
+                  className={`h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-800  ${isLiked ? "text-red-500" : "text-muted-foreground"} hover:scale-110 transition-all`}
                 >
                   <Heart className={`h-6 w-6 ${isLiked ? "fill-red-500" : ""}`} />
                 </Button>
@@ -163,7 +164,7 @@ const App = () => {
                   variant="ghost"
                   size="icon"
                   onClick={toggleMute}
-                  className="h-12 w-12 rounded-full text-muted-foreground hover:scale-110 transition-all"
+                  className="h-12 w-12 bg-gray-200 dark:bg-gray-800 rounded-full text-muted-foreground hover:scale-110 transition-all"
                 >
                   {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
                 </Button>
@@ -274,7 +275,7 @@ const App = () => {
 
         {/* Bottom Navigation */}
         <div className="relative z-10 bg-card/80 backdrop-blur-lg border-t border-border/50 rounded-t-3xl shadow-2xl">
-          <div className="grid grid-cols-3 items-center justify-around">
+          <div className="grid grid-cols-3 items-center justify-around divide-gray-200 dark:divide-gray-800 divide-x">
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
                 <button className="flex flex-col items-center gap-2 w-full h-auto py-8 hover:bg-muted/50 transition-all">

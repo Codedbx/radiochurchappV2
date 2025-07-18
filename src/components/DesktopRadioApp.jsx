@@ -98,7 +98,7 @@ export default function DesktopRadioApp() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 overflow-hidden">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between max-w-6xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-violet-700 to-violet-700/70 rounded-full flex items-center justify-center">
               <div className="w-8 h-8 bg-white rounded-full animate-pulse" />
