@@ -10,7 +10,6 @@ export default function FullPlayer({
   toggleMute,
   isLiked,
   toggleLike,
-  listeners,
   likes,
 }) {
   return (
@@ -40,14 +39,6 @@ export default function FullPlayer({
       </div>
       {/* Main Play Controls */}
       <div className="flex items-center justify-center gap-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleLike}
-          className={`h-12 w-12 rounded-full ${isLiked ? "text-red-500" : "text-muted-foreground"} hover:scale-110 transition-all`}
-        >
-          <Heart className={`h-6 w-6 ${isLiked ? "fill-red-500" : ""}`} />
-        </Button>
         <Button
           onClick={togglePlayPause}
           className="w-20 h-20 rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white/20"

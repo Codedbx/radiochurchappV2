@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { MessageCircle, Play, Phone, Pause, Volume2, VolumeX, Heart, ExternalLink } from "lucide-react"
+import { MessageCircle, Play, Phone, Pause, Volume2, VolumeX, Heart, ExternalLink, Loader2 } from "lucide-react"
 import {
   Drawer,
   DrawerTrigger,
@@ -20,33 +20,177 @@ import CompactPlayer from "./components/CompactPlayer"
 import { useIsMobile } from "./hooks/UseIsMobile"
 
 const App = () => {
+  const audioRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
-  const [listeners, setListeners] = useState(1247)
+  const [volume, setVolume] = useState(75) // Volume state (0-100)
   const [likes, setLikes] = useState(89)
   const [isLiked, setIsLiked] = useState(false)
   const [isAnyDrawerOpen, setIsAnyDrawerOpen] = useState(false)
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false) // Initialize as false
+  const [audioError, setAudioError] = useState(null)
   const isMobile = useIsMobile()
 
-  // Simulate live listener count changes
+  // Effect to control audio playback based on isPlaying state
   useEffect(() => {
-    const interval = setInterval(() => {
-      setListeners((prev) => prev + Math.floor(Math.random() * 3) - 1)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
+    const audio = audioRef.current
+    if (!audio) return
+
+    if (isPlaying) {
+      // Only attempt to play if not already playing and no error
+      if (audio.paused && !audioError) {
+        audio.play().catch((e) => {
+          if (e.name === "AbortError") {
+            console.warn("Audio play was aborted, likely due to rapid state change or user gesture requirement.")
+          } else {
+            console.error("Error attempting to play audio:", e)
+            setAudioError("Failed to play audio. Please try again.")
+            setIsPlaying(false) // Stop trying to play on error
+          }
+          setIsLoadingAudio(false) // Stop loading on error
+        })
+      }
+    } else {
+      // Only pause if currently playing
+      if (!audio.paused) {
+        audio.pause()
+      }
+      setIsLoadingAudio(false) // Not playing, so not loading
+    }
+  }, [isPlaying, audioError]) // Depend on isPlaying and audioError
+
+  // Effect to control audio mute based on isMuted state
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted
+    }
+  }, [isMuted])
+
+  // Effect to control audio volume based on volume state
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100 // Convert 0-100 to 0-1
+    }
+  }, [volume])
+
+  // Effect for attaching and detaching audio event listeners (runs once on mount)
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const handleCanPlayThrough = () => {
+      setIsLoadingAudio(false)
+      setAudioError(null)
+      // If audio was already playing before buffering, ensure isPlaying state is true
+      if (!audio.paused && !isPlaying) {
+        setIsPlaying(true)
+      }
+    }
+
+    const handleWaiting = () => {
+      setIsLoadingAudio(true)
+    }
+
+    const handlePlaying = () => {
+      setIsLoadingAudio(false)
+      setAudioError(null)
+      setIsPlaying(true) // Ensure state is true if audio starts playing
+    }
+
+    const handlePause = () => {
+      setIsPlaying(false) // Ensure state is false if audio pauses
+      setIsLoadingAudio(false)
+    }
+
+    const handleError = (e) => {
+      setIsLoadingAudio(false)
+      setIsPlaying(false) // Stop playing on error
+      const target = e.target 
+      let errorMessage = "An unknown audio error occurred."
+      if (target.error) {
+        switch (target.error.code) {
+          case target.error.MEDIA_ERR_ABORTED:
+            errorMessage = "Audio playback aborted."
+            break
+          case target.error.MEDIA_ERR_NETWORK:
+            errorMessage = "Network error: Audio download failed. Check your internet connection or stream URL."
+            break
+          case target.error.MEDIA_ERR_DECODE:
+            errorMessage = "Audio decode error: Format not supported or corrupted. Try a different browser."
+            break
+          case target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMessage = "Audio source not supported by your browser. The stream format might be incompatible."
+            break
+          default:
+            errorMessage = `An unknown audio error occurred (Code: ${target.error.code}).`
+        }
+      }
+      setAudioError(errorMessage)
+      console.error("Audio Error:", errorMessage, target.error)
+    }
+
+    audio.addEventListener("canplaythrough", handleCanPlayThrough)
+    audio.addEventListener("waiting", handleWaiting)
+    audio.addEventListener("playing", handlePlaying)
+    audio.addEventListener("pause", handlePause) // Listen for pause events
+    audio.addEventListener("error", handleError)
+
+    // Initial check for loading state when component mounts
+    // If audio is already ready, set loading to false immediately
+    if (audio.readyState >= 3) {
+      // HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
+      setIsLoadingAudio(false)
+    } else {
+      setIsLoadingAudio(true) // Assume loading until canplaythrough or playing
+    }
+
+    return () => {
+      audio.removeEventListener("canplaythrough", handleCanPlayThrough)
+      audio.removeEventListener("waiting", handleWaiting)
+      audio.removeEventListener("playing", handlePlaying)
+      audio.removeEventListener("pause", handlePause)
+      audio.removeEventListener("error", handleError)
+    }
+  }, []) // Empty dependency array means this effect runs once on mount and cleans up on unmount
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying)
+    setIsPlaying((prev) => !prev)
+    setAudioError(null) // Clear any previous error when toggling playback
+    // When play is clicked, assume loading until 'playing' event confirms
+    if (!isPlaying) {
+      // If we are about to play
+      setIsLoadingAudio(true)
+    }
   }
 
   const toggleMute = () => {
-    setIsMuted(!isMuted)
+    setIsMuted((prev) => {
+      const newMutedState = !prev
+      if (newMutedState) {
+        // If muting, set volume to 0
+        setVolume(0)
+      } else {
+        // If unmuting, restore to a default volume if it was 0, otherwise keep current volume
+        if (volume === 0) {
+          setVolume(75)
+        }
+      }
+      return newMutedState
+    })
   }
 
   const toggleLike = () => {
     setIsLiked(!isLiked)
     setLikes((prev) => (isLiked ? prev - 1 : prev + 1))
+  }
+
+  const handleVolumeChange = (newVolume) => {
+    setVolume(newVolume)
+    if (newVolume > 0 && isMuted) {
+      setIsMuted(false) // Unmute if volume is increased from 0 while muted
+    } else if (newVolume === 0 && !isMuted) {
+      setIsMuted(true) // Mute if volume is set to 0
+    }
   }
 
   const playerProps = {
@@ -56,15 +200,18 @@ const App = () => {
     togglePlayPause,
     toggleMute,
     toggleLike,
-    listeners,
     likes,
+    volume,
+    setVolume: handleVolumeChange,
+    isLoadingAudio,
+    audioError,
   }
 
   // Show desktop version on larger screens
   if (!isMobile) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <DesktopRadioApp />
+        <DesktopRadioApp {...playerProps} />
       </ThemeProvider>
     )
   }
@@ -73,6 +220,12 @@ const App = () => {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <div className="relative flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/30 overflow-hidden">
+        {/* Audio Element */}
+        <audio ref={audioRef} preload="auto">
+          <source src="https://radio.ifastekpanel.com:1115/stream" type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
@@ -81,7 +234,6 @@ const App = () => {
             style={{ animationDelay: "2s" }}
           />
         </div>
-
         {/* Main Header - Animates out when drawer opens */}
         <AnimatePresence>
           {!isAnyDrawerOpen && (
@@ -107,21 +259,19 @@ const App = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
         {/* Main Content */}
         <div
           className={`relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center transition-all duration-300 ${
-            isAnyDrawerOpen ? "pt-[72px]" : "" // Add padding when compact player is at top
+            isAnyDrawerOpen ? "pt-[72px]" : ""
           }`}
         >
           {/* Logo Container */}
           <div className="relative mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent rounded-full blur-2xl animate-pulse" />
-            <div className="relative w-46 h-46 flex justify-center items-center bg-gradient-to-br from-card to-card/50 rounded-full p-4 shadow-2xl border-8 border-border/50 backdrop-blur-sm">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent rounded-full blur-2xl dark:blur-2xl animate-pulse dark:animate-none" />
+            <div className="relative w-46 h-46 flex justify-center items-center bg-gradient-to-br from-card to-card/50 rounded-full p-4 shadow-2xl border-8 border-border/50 dark:border-gray-800 backdrop-blur-sm">
               <img src="/images/logo.png" alt="Christ Embassy Logo" className="w-32 h-32 object-contain" />
             </div>
           </div>
-
           {/* Church Info */}
           <div className="mb-8 max-w-md">
             <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
@@ -134,7 +284,6 @@ const App = () => {
               Live Now
             </div>
           </div>
-
           {/* Main Play Controls - Conditionally rendered with animation */}
           <AnimatePresence>
             {!isAnyDrawerOpen && (
@@ -150,7 +299,7 @@ const App = () => {
                   variant="ghost"
                   size="icon"
                   onClick={toggleLike}
-                  className={`h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-800  ${isLiked ? "text-red-500" : "text-muted-foreground"} hover:scale-110 transition-all`}
+                  className={`h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-800  ${isLiked ? "text-red-500" : "text-muted-foreground"} hover:scale-110 transition-all`}
                 >
                   <Heart className={`h-6 w-6 ${isLiked ? "fill-red-500" : ""}`} />
                 </Button>
@@ -158,7 +307,11 @@ const App = () => {
                   onClick={togglePlayPause}
                   className="w-20 h-20 rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white/20"
                 >
-                  {isPlaying ? <Pause className="h-8 w-8 text-white" /> : <Play className="h-8 w-8 text-white ml-1" />}
+                  {isPlaying ? (
+                    <Pause className="h-8 w-8 text-white" />
+                  ) : (
+                    <Play className="h-8 w-8 text-white ml-1" />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"
@@ -171,7 +324,6 @@ const App = () => {
               </motion.div>
             )}
           </AnimatePresence>
-
           {/* Action Buttons (Comment, Call In) */}
           <div className="flex items-center justify-center gap-8">
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
@@ -217,7 +369,6 @@ const App = () => {
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
-
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
                 <Button
@@ -254,8 +405,7 @@ const App = () => {
                     <a href="tel:+2347042066472" className="text-primary text-2xl font-bold hover:underline">
                       +2347042066472
                     </a>
-                    <p className="text-sm text-muted-foreground mt-2">{"(Standard call rates may apply)"}</p>
-                  </div>
+                    </div>
                 </div>
                 <DrawerFooter>
                   <Button
@@ -272,9 +422,8 @@ const App = () => {
             </Drawer>
           </div>
         </div>
-
         {/* Bottom Navigation */}
-        <div className="relative z-10 bg-card/80 backdrop-blur-lg border-t border-border/50 rounded-t-3xl shadow-2xl">
+        <div className="relative z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-lg border-t border-border/50 rounded-t-3xl shadow-2xl">
           <div className="grid grid-cols-3 items-center justify-around divide-gray-200 dark:divide-gray-800 divide-x">
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
@@ -311,10 +460,6 @@ const App = () => {
                     <h3 className="font-semibold mb-2">Mid-Week Service</h3>
                     <p className="text-sm text-muted-foreground">Every Wednesday 6pm to 7pm (WAT)</p>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Youth Service</h3>
-                    <p className="text-sm text-muted-foreground">Every Saturday at 4:00 PM</p>
-                  </div>
                 </div>
                 <DrawerFooter>
                   <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
@@ -324,7 +469,6 @@ const App = () => {
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
-
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
                 <button className="flex flex-col items-center gap-2 w-full h-auto py-8 hover:bg-muted/50 transition-all">
@@ -359,15 +503,8 @@ const App = () => {
                     <p className="text-sm text-muted-foreground">- Luke 6:38</p>
                   </div>
                 </div>
-                <DrawerFooter>
-                  <Button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white">
-                    <Heart className="w-4 h-4 mr-2" />
-                    Give Now
-                  </Button>
-                </DrawerFooter>
               </DrawerContent>
             </Drawer>
-
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
                 <button className="flex flex-col items-center gap-2 w-full h-auto py-8 hover:bg-muted/50 transition-all">
@@ -452,11 +589,6 @@ const App = () => {
                     <ExternalLink className="w-4 h-4 text-muted-foreground" />
                   </a>
                 </div>
-                <DrawerFooter>
-                  <Button variant="outline" className="border-primary/20 hover:bg-primary/10 bg-transparent">
-                    View All Resources
-                  </Button>
-                </DrawerFooter>
               </DrawerContent>
             </Drawer>
           </div>

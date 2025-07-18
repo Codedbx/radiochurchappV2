@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Play, Pause, Volume2, VolumeX, Heart } from "lucide-react"
 
@@ -8,8 +10,6 @@ export default function CompactPlayer({
   togglePlayPause,
   toggleMute,
   toggleLike,
-  listeners,
-  likes,
 }) {
   return (
     <div className="flex items-center justify-between w-full">
@@ -26,34 +26,15 @@ export default function CompactPlayer({
               Live
             </div>
             <span>•</span>
-            <span>{listeners.toLocaleString()} listeners</span>
           </div>
         </div>
       </div>
-
       {/* Controls */}
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleLike}
-          className={`h-8 w-8 ${isLiked ? "text-red-500" : "text-muted-foreground"}`}
-        >
-          <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleMute}
-          className="h-8 w-8 text-muted-foreground"
-        >
+        <Button variant="ghost" size="icon" onClick={toggleMute} className="h-8 w-8 text-muted-foreground">
           {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </Button>
-        <Button
-          onClick={togglePlayPause}
-          size="icon"
-          className="h-8 w-8 bg-primary hover:bg-primary/90"
-        >
+        <Button onClick={togglePlayPause} size="icon" className="h-8 w-8 bg-primary hover:bg-primary/90">
           {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3 ml-0.5" />}
         </Button>
       </div>
