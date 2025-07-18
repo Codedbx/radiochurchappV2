@@ -266,7 +266,7 @@ const App = () => {
   // Mobile version (original design)
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <div className="relative flex flex-col min-h-screen bg-gradient-to-br from-slate-200 via-white to-violet-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-violet-900/10 overflow-hidden">
+      <div className="relative flex flex-col min-h-screen bg-gradient-to-br from-slate-400 via-white to-violet-200/30 dark:from-slate-900 dark:via-slate-800 dark:to-violet-900/10 overflow-hidden">
         {/* Audio Element */}
         <audio ref={audioRef} preload="auto">
           <source src="https://radio.ifastekpanel.com:1115/stream" type="audio/mpeg" />
@@ -296,7 +296,7 @@ const App = () => {
               <div className="flex items-center gap-1">
                 <div className="w-10 h-10 bg-gradient-to-br from-violet-700 to-violet-700/70 rounded-full flex items-center justify-center">
                   <div className="w-8 h-8 absolute bg-white rounded-full animate-pulse" />
-                  <img src="/images/loveworld-logo.png" className="w-6 h-6 z-50" alt="logo" />
+                  <img src="/images/loveworld-logo.png" className="w-6 h-6 z-50 rounded-full" alt="logo" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">Online Radio Church</h2>
@@ -361,7 +361,7 @@ const App = () => {
                 </Button>
                 <Button
                   onClick={togglePlayPause}
-                  className="w-20 h-20 rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 shadow-2xl hover:scale-105 transition-all duration-300 border-3 border-gray-700"
+                  className="w-20 h-20 rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 shadow-2xl hover:scale-105 transition-all duration-300 border-3 border-gray-300 dark:border-gray-700"
                 >
                   {isLoadingAudio && isPlaying ? ( // Show loader only if trying to play AND buffering
                     <Loader2 className="h-8 w-8 text-white animate-spin" />
@@ -521,15 +521,15 @@ const App = () => {
         </div>
 
         {/* Bottom Navigation */}
-        <div className="relative z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-lg border-t border-border/50 rounded-t-3xl shadow-2xl">
-          <div className="grid grid-cols-3 items-center justify-around divide-gray-200 dark:divide-gray-800 divide-x">
+        <div className="relative z-10 bg-white gap-0 backdrop-blur-sm border-0 shadow-2xl dark:bg-slate-800/70 rounded-t-3xl">
+          <div className="grid grid-cols-3 items-center justify-around divide-gray-200 dark:divide-slate-700 divide-x">
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
-                <button className="flex flex-col items-center gap-2 w-full h-auto py-8 hover:bg-muted/50 transition-all">
-                  <span className="font-medium">Services</span>
+                <button className="flex flex-col items-center gap-2 text-sm font-normal w-full h-auto py-8 hover:bg-muted/50 transition-all">
+                  <span className="font-medium">Service Days</span>
                 </button>
               </DrawerTrigger>
-              <DrawerContent className="bg-card/95 backdrop-blur-lg border-border/50 h-full flex flex-col">
+              <DrawerContent className="bg-white dark:bg-gray-900 backdrop-blur-lg border-border/50 h-full flex flex-col">
                 <AnimatePresence>
                   {isAnyDrawerOpen && (
                     <motion.div
@@ -538,7 +538,7 @@ const App = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -100 }}
                       transition={{ duration: 0.3 }}
-                      className="fixed -translate-y-full -top-2 left-0 right-0 z-[500] px-4 py-2 mx-2 rounded-lg bg-card/90 backdrop-blur-md border-b border-border/50"
+                      className="fixed -translate-y-full -top-2 left-0 right-0 z-[500] px-4 py-4 mx-2 rounded-lg bg-card/90 dark:bg-gray-900 backdrop-blur-md border-b border-border/50"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <CompactPlayer {...playerProps} />
@@ -550,11 +550,11 @@ const App = () => {
                   <DrawerDescription>Join us for worship and fellowship</DrawerDescription>
                 </DrawerHeader>
                 <div className="p-6 space-y-4 flex-1 overflow-auto">
-                  <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="bg-muted/80 dark:bg-gray-800 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">Sunday Service</h3>
                     <p className="text-sm text-muted-foreground">Every Sunday 7am to 8am (WAT)</p>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="bg-muted/80 dark:bg-gray-800 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">Mid-Week Service</h3>
                     <p className="text-sm text-muted-foreground">Every Wednesday 6pm to 7pm (WAT)</p>
                   </div>
@@ -564,11 +564,11 @@ const App = () => {
 
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
-                <button className="flex flex-col items-center gap-2 w-full h-auto py-8 hover:bg-muted/50 transition-all">
+                <button className="flex flex-col items-center gap-2 text-sm font-normal w-full h-auto py-8 hover:bg-muted/50 transition-all">
                   <span className="font-medium">Give</span>
                 </button>
               </DrawerTrigger>
-              <DrawerContent className="bg-card/95 backdrop-blur-lg border-border/50 h-full flex flex-col">
+              <DrawerContent className="bg-white dark:bg-gray-900 backdrop-blur-lg border-border/50 h-full flex flex-col">
                 <AnimatePresence>
                   {isAnyDrawerOpen && (
                     <motion.div
@@ -577,7 +577,7 @@ const App = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -100 }}
                       transition={{ duration: 0.3 }}
-                      className="fixed -translate-y-full -top-2 left-0 right-0 z-[500] px-4 py-2 mx-2 rounded-lg bg-card/90 backdrop-blur-md border-b border-border/50"
+                      className="fixed -translate-y-full -top-2 left-0 right-0 z-[500] px-4 py-4 mx-2 rounded-lg bg-card/90 dark:bg-gray-900 backdrop-blur-md border-b border-border/50"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <CompactPlayer {...playerProps} />
@@ -590,7 +590,7 @@ const App = () => {
                 </DrawerHeader>
                 <div className="p-6 space-y-4 flex-1 overflow-auto">
                   <div className="text-center">
-                    <p className="text-muted-foreground mb-4">{"To Give, Kindly text the word GIVE to +2347042066472"}</p>
+                    {/* <p className="text-muted-foreground mb-4">{"To Give, Kindly text the word GIVE to +2347042066472"}</p> */}
                     <p className="text-lg font-medium">
                       To Give, Kindly text the word <span className="font-bold text-primary">GIVE</span> to{" "}
                       <a href="tel:+2347042066472" className="font-bold text-primary hover:underline">
@@ -605,11 +605,11 @@ const App = () => {
 
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
               <DrawerTrigger asChild>
-                <button className="flex flex-col items-center gap-2 w-full h-auto py-8 hover:bg-muted/50 transition-all">
+                <button className="flex flex-col items-center gap-2 text-sm font-normal w-full h-auto py-8 hover:bg-muted/50 transition-all">
                   <span className="font-medium">Quick Links</span>
                 </button>
               </DrawerTrigger>
-              <DrawerContent className="bg-card/95 backdrop-blur-lg border-border/50 h-full flex flex-col">
+              <DrawerContent className="bg-white dark:bg-gray-900 backdrop-blur-lg border-border/50 h-full flex flex-col">
                 <AnimatePresence>
                   {isAnyDrawerOpen && (
                     <motion.div
@@ -618,7 +618,7 @@ const App = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -100 }}
                       transition={{ duration: 0.3 }}
-                      className="fixed -translate-y-full -top-2 left-0 right-0 z-[500] px-4 py-2 mx-2 rounded-lg bg-card/90 backdrop-blur-md border-b border-border/50"
+                      className="fixed -translate-y-full -top-2 left-0 right-0 z-[500] px-4 py-4 mx-2 rounded-lg bg-card/90 dark:bg-gray-900 backdrop-blur-md border-b border-border/50"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <CompactPlayer {...playerProps} />
@@ -643,7 +643,7 @@ const App = () => {
                     <a
                       key={index}
                       href="#"
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors border border-border/50"
+                      className="flex items-center justify-between p-3 bg-muted/80 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-border/50"
                     >
                       <span className="font-medium">{link}</span>
                       <ExternalLink className="w-4 h-4 text-muted-foreground" />

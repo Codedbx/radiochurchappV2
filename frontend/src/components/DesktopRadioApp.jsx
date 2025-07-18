@@ -485,7 +485,7 @@ export default function DesktopRadioApp({
                     ].map((link, index) => (
                         <Card
                         key={index}
-                        className="bg-white backdrop-blur-sm border-0 shadow-lg dark:bg-slate-800/70 hover:shadow-xl transition-all duration-200 cursor-pointer group"
+                        className="bg-gray-100 backdrop-blur-sm border-0 dark:bg-slate-800/70 hover:shadow-xl transition-all duration-200 cursor-pointer group"
                         >
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
