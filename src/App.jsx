@@ -461,12 +461,6 @@ const App = () => {
                     <p className="text-sm text-muted-foreground">Every Wednesday 6pm to 7pm (WAT)</p>
                   </div>
                 </div>
-                <DrawerFooter>
-                  <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Full Calendar
-                  </Button>
-                </DrawerFooter>
               </DrawerContent>
             </Drawer>
             <Drawer onOpenChange={setIsAnyDrawerOpen}>
