@@ -17,8 +17,7 @@ export default function CompactPlayer({
       <div className="flex items-center gap-3 flex-1">
         <div className="w-8 h-8 bg-gradient-to-br from-violet-700 to-violet-700/70 rounded-full flex items-center justify-center">
           <div className="w-6 h-6 absolute bg-white rounded-full animate-pulse" />
-          <img src="/images/logo.png" className="w-5 h-4"
-           z-50" alt="logo" />
+          <img src="/images/logo.png" className="w-5 h-4 z-50" alt="logo" />
         </div>
         <div className="min-w-0">
           <h3 className="text-sm font-semibold truncate">Christ Embassy Nigeria</h3>
