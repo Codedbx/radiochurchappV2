@@ -46,6 +46,14 @@ export default function DesktopRadioApp({
   const [commentPostError, setCommentPostError] = useState(null)
   const [isFetchingComments, setIsFetchingComments] = useState(true)
   const [commentFetchError, setCommentFetchError] = useState(null)
+
+    // Determine if today is Sunday or Wednesday in WAT
+  const watDate = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+    const day = watDate.getDay(); // Sunday = 0, Wednesday = 3
+    const hour = watDate.getHours();
+
+    const isMidWeekService = day === 3 && hour >= 18 && hour < 19; // 6–7PM WAT
+    const isSundayService = day === 0 && hour >= 7 && hour < 8; // 7–8AM WAT
   // Simulate fetching comments on mount
   useEffect(() => {
     const fetchComments = async () => {
@@ -266,14 +274,14 @@ export default function DesktopRadioApp({
             </div>
             {/* Right Content Area */}
             <div className="flex-1 min-w-0">
-                <Tabs defaultValue="comments" className="h-full">
+                <Tabs defaultValue="give" className="h-full">
                 <TabsList className="grid w-full grid-cols-4 mb-8 bg-transparent p-0 rounded-none h-14 border-b border-slate-200 dark:border-slate-700">
                     <TabsTrigger
-                    value="comments"
+                    value="give"
                     className="relative px-4 py-3 text-center text-slate-600 dark:text-slate-400 hover:text-violet-600 transition-colors duration-200 data-[state=active]:text-violet-600 data-[state=active]:font-semibold dark:data-[state=active]:border-none dark:data-[state=active]:shadow-none data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-b-gray-600 rounded-none -mb-px"
                     >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Comments
+                    <Heart className="w-4 h-4 mr-2" />
+                    Give
                     </TabsTrigger>
                     <TabsTrigger
                     value="services"
@@ -283,11 +291,11 @@ export default function DesktopRadioApp({
                     Services
                     </TabsTrigger>
                     <TabsTrigger
-                    value="give"
+                    value="comments"
                     className="relative px-4 py-3 text-center text-slate-600 dark:text-slate-400 hover:text-violet-600 transition-colors duration-200 data-[state=active]:text-violet-600 data-[state=active]:font-semibold dark:data-[state=active]:border-none dark:data-[state=active]:shadow-none data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-b-gray-600 rounded-none -mb-px"
                     >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Give
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Comments
                     </TabsTrigger>
                     <TabsTrigger
                     value="links"
@@ -315,27 +323,29 @@ export default function DesktopRadioApp({
                         <Textarea
                             placeholder="Share your thoughts, prayer requests, or testimonies..."
                             value={commentText}
+                            disabled
                             onChange={(e) => setCommentText(e.target.value)}
                             className="min-h-[100px] resize-none border-0 bg-slate-50/50 dark:bg-slate-900/50 focus:ring-2 focus:ring-violet-500 rounded-xl"
                         />
                         <Button
                             onClick={handleSubmitComment}
                             className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-lg"
-                            disabled={!commentText.trim() || isPostingComment}
+                            // disabled={!commentText.trim() || isPostingComment}
+                            disabled
                         >
                             {isPostingComment ? (
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             ) : (
                             <Send className="w-4 h-4 mr-2" />
                             )}
-                            {isPostingComment ? "Posting..." : "Post Comment"}
+                            {isPostingComment ? "Posting..." : "Coming Soon"}
                         </Button>
                         {commentPostError && <p className="text-red-500 text-sm">{commentPostError}</p>}
                         </div>
                     </CardContent>
                     </Card>
                     {/* Comments List */}
-                    {isFetchingComments ? (
+                    {/* {isFetchingComments ? (
                     <div className="flex items-center justify-center h-40 text-slate-500">
                         <Loader2 className="w-6 h-6 animate-spin mr-2" />
                         Loading comments...
@@ -368,7 +378,11 @@ export default function DesktopRadioApp({
                         </div>
                         ))}
                     </div>
-                    )}
+                    )} */}
+
+                    <div className="flex items-center justify-center h-40 text-slate-500 mutee">
+                        Coming Soon: Live Chat Feature
+                    </div>
                 </TabsContent>
                 {/* Services Tab */}
                 <TabsContent value="services" className="space-y-6">
@@ -395,7 +409,15 @@ export default function DesktopRadioApp({
                                 <span>Live Broadcast</span>
                             </div>
                             </div>
-                            <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Active Now</Badge>
+                            <Badge
+                                className={
+                                    isSundayService
+                                        ? "bg-green-500/10 text-green-600 border-green-500/20"
+                                        : "bg-slate-100 text-slate-600 border-slate-300"
+                                }
+                            >
+                                {isSundayService ? "Active Now" : "Upcoming"}
+                            </Badge>
                         </div>
                         </CardContent>
                     </Card>
@@ -412,9 +434,20 @@ export default function DesktopRadioApp({
                                 <span>Live Broadcast</span>
                             </div>
                             </div>
-                            <Badge variant="outline" className="text-slate-600 border-slate-300">
-                            Upcoming
+                            
+                            <Badge
+                                className={
+                                    isMidWeekService
+                                        ? "bg-green-500/10 text-green-600 border-green-500/20"
+                                        : "bg-slate-100 text-slate-600 border-slate-300"
+                                }
+                            >
+                                {isMidWeekService ? "Active Now" : "Upcoming"}
                             </Badge>
+                            
+
+                            
+                            
                         </div>
                         </CardContent>
                     </Card>
