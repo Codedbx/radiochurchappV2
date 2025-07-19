@@ -627,7 +627,7 @@ const App = () => {
                 </AnimatePresence>
                 <DrawerHeader className="text-center">
                   <DrawerTitle className="text-xl font-bold">Quick Links</DrawerTitle>
-                  <DrawerDescription>Access important resources</DrawerDescription>
+                  {/* <DrawerDescription>Access important resources</DrawerDescription> */}
                 </DrawerHeader>
                 <div className="p-6 space-y-3 flex-1 overflow-auto">
                   {[
