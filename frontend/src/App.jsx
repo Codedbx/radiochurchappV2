@@ -9,7 +9,7 @@ import HomePage from "./pages/HomePage";
 import FavoritesPage from "./pages/FavoritesPage";
 import LivePage from "./pages/LivePage";
 import MessagesPage from "./pages/MessagesPage";
-import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./pages/ProfilePage"; 
 import SearchPage from "./pages/SearchPage";
 import AuthModal from "./components/AuthModal";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
