@@ -1,0 +1,74 @@
+import { Button } from "@/components/ui/button"
+import { Play } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { motion } from "framer-motion"
+import { useAuthStore } from "@/stores/authStore"
+import { usePlayerStore } from "@/stores/playerStore"
+import { useAppStore } from "@/stores/appStore"
+
+const messages = [
+  { id: 1, title: "Faith in Action", category: "Faith", speaker: "Pastor John", date: "Mar 12, 2024", audioUrl: "https://example.com/faith-in-action.mp3" },
+  { id: 2, title: "The Power of Prayer", category: "Spirituality", speaker: "Pastor Mary", date: "Mar 10, 2024", audioUrl: "https://example.com/power-of-prayer.mp3" },
+  { id: 3, title: "Living in Grace", category: "Life", speaker: "Pastor Chris", date: "Mar 8, 2024", audioUrl: "https://example.com/living-in-grace.mp3" },
+  { id: 4, title: "God's Love Revealed", category: "Theology", speaker: "Pastor John", date: "Mar 5, 2024", audioUrl: "https://example.com/gods-love.mp3" },
+  { id: 5, title: "Breaking Free", category: "Deliverance", speaker: "Pastor Sarah", date: "Mar 1, 2024", audioUrl: "https://example.com/breaking-free.mp3" },
+]
+
+export default function MessagesPage() {
+  const { isLoggedIn } = useAuthStore()
+  const { setCurrentMessage } = usePlayerStore()
+  const { openAuthModal } = useAppStore()
+
+  const handlePlayMessage = (message) => {
+    if (!isLoggedIn) {
+      openAuthModal("login")
+      return
+    }
+    setCurrentMessage(message)
+  }
+
+  return (
+    <div className="space-y-4">
+      {messages.map((message) => (
+        <motion.div
+          key={message.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start justify-between p-6 bg-white backdrop-blur-sm rounded-xl shadow-lg border-0 dark:bg-slate-800/70 hover:shadow-xl transition"
+        >
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{message.title}</h3>
+            <div className="flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-400">
+              <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-400">
+                {message.category}
+              </Badge>
+              <span>{message.speaker}</span>
+              <span>{message.date}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 ml-4">
+            {isLoggedIn ? (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => handlePlayMessage(message)}
+                className="text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-900/20"
+              >
+                <Play className="h-5 w-5" />
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => openAuthModal("login")}
+                className="text-xs border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20"
+              >
+                Sign in to play
+              </Button>
+            )}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  )
+}

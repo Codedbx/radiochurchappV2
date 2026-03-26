@@ -1,12 +1,5 @@
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge"
-
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-export function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
 
 export const usePlayerStore = create(
   persist(
