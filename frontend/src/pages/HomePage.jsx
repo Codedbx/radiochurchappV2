@@ -357,10 +357,10 @@ export default function HomePage() {
   return (
     <>
       {/* ── DESKTOP ── */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block -mx-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b border-slate-200 dark:border-slate-700 -mx-4 rounded-none">
-            <TabsList className="grid h-14 w-full grid-cols-4 rounded-none border-0 bg-transparent p-0 px-4">
+          <div className="border-b border-slate-200 dark:border-slate-700/40 rounded-sm">
+            <TabsList className="grid h-14 w-full grid-cols-4 rounded-none border-0 bg-transparent p-0">
               {[
                 { value: "comments", label: "Comments", icon: MessageCircle },
                 { value: "give", label: "Give", icon: Gift },
@@ -372,7 +372,7 @@ export default function HomePage() {
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className="relative rounded-none px-4 py-3 text-center text-slate-600 transition-colors duration-200 data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-b-slate-700 hover:text-primary/80 dark:text-slate-400 dark:data-[state=active]:border-b-0 data-[state=active]:bg-transparent -mb-px"
+                    className="relative rounded-none px-4 py-3 text-center text-slate-600 transition-colors duration-200 data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-b-slate-700 hover:text-primary/80 dark:text-slate-400 dark:data-[state=active]:border-b-0 data-[state=active]:bg-transparent"
                   >
                     {TabIcon && <TabIcon className="mr-2 h-4 w-4 inline" />}
                     {tab.label}
