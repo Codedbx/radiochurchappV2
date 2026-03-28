@@ -13,21 +13,36 @@ import { useAudioPlayer } from "./hooks/useAudioPlayer";
 import ProfileDashboard from "./pages/ProfileDashboard";
 import MobileLayout from "./components/MobileLayout";
 import DesktopLayout from "./components/DesktopLayout";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 export default function App() {
   const isMobile = useIsMobile();
   const audioProps = useAudioPlayer();
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <BrowserRouter>
         <div className="min-h-screen bg-linear-to-br from-slate-100 via-white to-violet-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-violet-900/10">
           {!isMobile && <Navbar />}
-          
+
           <main>
             <Routes>
+              {/* Mobile-only auth pages — rendered outside the main layout */}
+              {isMobile && (
+                <>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignupPage />} />
+                </>
+              )}
+
               {/* Parent Route handles the Layout logic */}
-              <Route 
+              <Route
                 element={
                   isMobile ? (
                     <MobileLayout audioProps={audioProps} />

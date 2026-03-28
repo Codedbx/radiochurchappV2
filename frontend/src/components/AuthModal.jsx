@@ -1,62 +1,73 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { X, Loader2 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useAuthStore } from "../stores/authStore"
-import { useAppStore } from "../stores/appStore"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { X, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "../stores/authStore";
+import { useAppStore } from "../stores/appStore";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 export default function AuthModal() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
 
-  const { isAuthModalOpen, authModalMode, closeAuthModal, setAuthModalMode } = useAppStore()
-  const { login, signup, isLoading } = useAuthStore()
+  const { isAuthModalOpen, authModalMode, closeAuthModal, setAuthModalMode } =
+    useAppStore();
+  const { login, signup, isLoading } = useAuthStore();
+  const isMobile = useIsMobile();
 
-  const isLogin = authModalMode === "login"
+  const isLogin = authModalMode === "login";
+
+  if (isMobile) return null;
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!email || !password) {
-      setError("Please fill in all fields")
-      return
+      setError("Please fill in all fields");
+      return;
     }
 
     if (!isLogin && !name) {
-      setError("Please enter your name")
-      return
+      setError("Please enter your name");
+      return;
     }
 
     if (isLogin) {
-      login(email, password)
+      login(email, password);
     } else {
-      signup(name, email, password)
+      signup(name, email, password);
     }
 
     // Clear form and close on success
     setTimeout(() => {
       if (useAuthStore.getState().isLoggedIn) {
-        setEmail("")
-        setPassword("")
-        setName("")
-        closeAuthModal()
+        setEmail("");
+        setPassword("");
+        setName("");
+        closeAuthModal();
       }
-    }, 800)
-  }
+    }, 800);
+  };
 
   const toggleMode = () => {
-    setAuthModalMode(isLogin ? "signup" : "login")
-    setError("")
-    setEmail("")
-    setPassword("")
-    setName("")
-  }
+    setAuthModalMode(isLogin ? "signup" : "login");
+    setError("");
+    setEmail("");
+    setPassword("");
+    setName("");
+  };
 
   return (
     <AnimatePresence>
@@ -80,9 +91,13 @@ export default function AuthModal() {
               <CardHeader className="relative">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-2xl">{isLogin ? "Welcome Back" : "Create Account"}</CardTitle>
+                    <CardTitle className="text-2xl">
+                      {isLogin ? "Welcome Back" : "Create Account"}
+                    </CardTitle>
                     <CardDescription>
-                      {isLogin ? "Sign in to your account" : "Join our community"}
+                      {isLogin
+                        ? "Sign in to your account"
+                        : "Join our community"}
                     </CardDescription>
                   </div>
                   <button
@@ -97,7 +112,9 @@ export default function AuthModal() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {!isLogin && (
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Name
+                      </label>
                       <input
                         placeholder="Your full name"
                         value={name}
@@ -108,7 +125,9 @@ export default function AuthModal() {
                     </div>
                   )}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Email
+                    </label>
                     <input
                       type="email"
                       placeholder="you@example.com"
@@ -119,7 +138,9 @@ export default function AuthModal() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Password
+                    </label>
                     <input
                       type="password"
                       placeholder="••••••••"
@@ -130,7 +151,11 @@ export default function AuthModal() {
                     />
                   </div>
 
-                  {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+                  {error && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {error}
+                    </p>
+                  )}
 
                   <Button
                     type="submit"
@@ -150,7 +175,9 @@ export default function AuthModal() {
                   </Button>
 
                   <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                    {isLogin
+                      ? "Don't have an account? "
+                      : "Already have an account? "}
                     <button
                       type="button"
                       onClick={toggleMode}
@@ -166,5 +193,5 @@ export default function AuthModal() {
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
