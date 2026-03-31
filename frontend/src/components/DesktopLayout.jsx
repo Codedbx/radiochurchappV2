@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import CompactPlayer from "./CompactPlayer";
 import {
   Play,
   Pause,
@@ -33,7 +34,7 @@ export default function DesktopLayout({ audioProps }) {
   };
 
   return (
-    <div className="container max-w-[90rem] mx-auto px-6 py-8">
+    <div className="container max-w-[90rem] mx-auto px-6 py-8 pb-24">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Sidebar - Player */}
         {isHome && (
@@ -174,6 +175,23 @@ export default function DesktopLayout({ audioProps }) {
           <Outlet />
         </div>
       </div>
+
+      {/* Compact Player - Fixed at bottom (not on home page) */}
+      {!isHome && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-6">
+          <div className="container max-w-[90rem] mx-auto">
+            <CompactPlayer
+              isPlaying={audioProps.isPlaying}
+              isMuted={audioProps.isMuted}
+              isLoading={audioProps.isLoading}
+              togglePlayPause={audioProps.togglePlayPause}
+              toggleMute={audioProps.toggleMute}
+              volume={audioProps.volume}
+              handleVolumeChange={audioProps.handleVolumeChange}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

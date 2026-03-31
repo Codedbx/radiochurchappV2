@@ -7,6 +7,7 @@ import HomePage from "./pages/HomePage";
 import FavoritesPage from "./pages/FavoritesPage";
 import LivePage from "./pages/LivePage";
 import MessagesPage from "./pages/MessagesPage";
+import MessageDetailPage from "./pages/MessageDetailPage";
 import SearchPage from "./pages/SearchPage";
 import AuthModal from "./components/AuthModal";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
@@ -54,6 +55,7 @@ export default function App() {
                 {/* Child Routes render inside the <Outlet /> of the layouts */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/messages" element={<MessagesPage />} />
+                <Route path="/message/:id" element={<MessageDetailPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/live" element={<LivePage />} />
                 <Route path="/profile" element={<ProfileDashboard />} />
