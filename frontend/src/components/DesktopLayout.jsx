@@ -176,22 +176,16 @@ export default function DesktopLayout({ audioProps }) {
         </div>
       </div>
 
-      {/* Compact Player - Fixed at bottom (not on home page) */}
-      {!isHome && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-6">
-          <div className="container max-w-[90rem] mx-auto">
-            <CompactPlayer
-              isPlaying={audioProps.isPlaying}
-              isMuted={audioProps.isMuted}
-              isLoading={audioProps.isLoading}
-              togglePlayPause={audioProps.togglePlayPause}
-              toggleMute={audioProps.toggleMute}
-              volume={audioProps.volume}
-              handleVolumeChange={audioProps.handleVolumeChange}
-            />
-          </div>
-        </div>
-      )}
+      {/* Compact Player - Fixed at bottom (shows on all pages) */}
+      <CompactPlayer
+        isPlaying={audioProps.isPlaying}
+        isMuted={audioProps.isMuted}
+        isLoading={audioProps.isLoading}
+        togglePlayPause={audioProps.togglePlayPause}
+        toggleMute={audioProps.toggleMute}
+        volume={audioProps.volume}
+        handleVolumeChange={audioProps.handleVolumeChange}
+      />
     </div>
   );
 }
