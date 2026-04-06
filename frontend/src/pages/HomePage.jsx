@@ -372,7 +372,7 @@ export default function HomePage() {
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className="relative rounded-none px-4 py-3 text-center text-slate-600 transition-colors duration-200 data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-b-slate-700 hover:text-primary/80 dark:text-slate-400 dark:data-[state=active]:border-b-0 data-[state=active]:bg-transparent"
+                    className="relative rounded-none px-4 py-3 text-center text-slate-600 transition-colors duration-200 data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-b-slate-700 hover:text-primary/80 dark:text-slate-400 dark:border-0 dark:data-[state=active]:border-0 data-[state=active]:bg-transparent"
                   >
                     {TabIcon && <TabIcon className="mr-2 h-4 w-4 inline" />}
                     {tab.label}
@@ -823,7 +823,12 @@ export default function HomePage() {
             <div className="space-y-3">
               {upcomingPrograms.map((p) => (
                 <Card key={p.id} className="overflow-hidden dark:bg-[#0f172b]">
-                  <div className="flex gap-3 p-3">
+                  <div
+                    className="flex gap-3 p-3md:gap-4 
+                    pl-4 pr-4 py-4 
+                    md:pl-6 md:pr-5 
+                    lg:pl-8 "
+                  >
                     <img
                       src={p.image}
                       alt={p.title}

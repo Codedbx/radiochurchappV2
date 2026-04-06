@@ -176,7 +176,7 @@ export default function DesktopLayout({ audioProps }) {
         </div>
       </div>
 
-      {/* Compact Player - Fixed at bottom (shows on all pages) */}
+      {/* Compact Player - Shows on all pages */}
       <CompactPlayer
         isPlaying={audioProps.isPlaying}
         isMuted={audioProps.isMuted}
