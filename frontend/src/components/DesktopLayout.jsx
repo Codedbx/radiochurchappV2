@@ -27,10 +27,25 @@ export default function DesktopLayout({ audioProps }) {
   const messageId = currentMessage?.id;
   const isLiked = messageId && isFavorite(messageId);
 
+  // Check if compact player is playing a message (not livestream)
+  const isPlayingMessage =
+    !isLiveStream && currentMessage && audioProps.isPlaying;
+
+  // Main player should not show as playing when compact player is playing a message
+  const mainPlayerIsPlaying = isPlayingMessage ? false : audioProps.isPlaying;
+
   const toggleLike = () => {
     if (!isLoggedIn) return;
     if (isLiked) removeFavorite(messageId);
     else if (currentMessage) addFavorite(messageId, currentMessage);
+  };
+
+  const handleMainPlayerToggle = () => {
+    // If compact player is playing a message, switch back to livestream first
+    if (isPlayingMessage) {
+      setLiveStream();
+    }
+    audioProps.togglePlayPause();
   };
 
   return (
@@ -86,12 +101,12 @@ export default function DesktopLayout({ audioProps }) {
                     />
                   </Button>
                   <Button
-                    onClick={audioProps.togglePlayPause}
+                    onClick={handleMainPlayerToggle}
                     className="w-20 h-20 rounded-full bg-linear-to-r from-violet-600 to-purple-600 shadow-2xl hover:scale-105 transition-all duration-300 hover:shadow-violet-500/25"
                   >
-                    {audioProps.isLoading && audioProps.isPlaying ? (
+                    {audioProps.isLoading && mainPlayerIsPlaying ? (
                       <Loader2 className="h-8 w-8 text-white animate-spin" />
-                    ) : audioProps.isPlaying ? (
+                    ) : mainPlayerIsPlaying ? (
                       <Pause className="h-8 w-8" />
                     ) : (
                       <Play className="h-8 w-8 ml-1" />

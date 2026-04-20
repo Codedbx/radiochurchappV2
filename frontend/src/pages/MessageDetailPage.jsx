@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -53,8 +53,14 @@ export default function MessageDetailPage() {
   const passedMessage = location.state?.message;
 
   // If no message passed, redirect back to messages page
+  useEffect(() => {
+    if (!passedMessage) {
+      navigate("/messages");
+    }
+  }, [passedMessage, navigate]);
+
+  // Show loading or null while redirecting
   if (!passedMessage) {
-    navigate("/messages");
     return null;
   }
 
@@ -125,25 +131,17 @@ export default function MessageDetailPage() {
   return (
     <div className="min-h-screen pb-20 md:pb-6">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/40">
+      <div className="sticky top-0 z-10 flex items-center px-4 py-3">
         <button
           onClick={() => navigate("/messages")}
           className="p-2 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-full transition text-slate-700 dark:text-slate-300 cursor-pointer"
         >
           <ArrowLeft className="h-6 w-6" />
         </button>
-        <div className="flex items-center gap-2">
-          <button className="p-2 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-full transition text-slate-700 dark:text-slate-300">
-            <Share2 className="h-5 w-5" />
-          </button>
-          <button className="p-2 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-full transition text-slate-700 dark:text-slate-300">
-            <MoreVertical className="h-5 w-5" />
-          </button>
-        </div>
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:block w-full max-w-7xl mx-auto px-4 py-8">
+      <div className="hidden lg:block w-full max-w-7xl mx-auto px-4 py-2">
         <div className="grid grid-cols-[1fr_380px] gap-6">
           {/* Left Column - Video/Player & Info */}
           <div className="space-y-6">

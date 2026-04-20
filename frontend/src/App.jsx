@@ -9,6 +9,8 @@ import LivePage from "./pages/LivePage";
 import MessagesPage from "./pages/MessagesPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import SearchPage from "./pages/SearchPage";
+import PlaylistsPage from "./pages/PlaylistsPage";
+import PlaylistDetailPage from "./pages/PlaylistDetailPage";
 import AuthModal from "./components/AuthModal";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
 import ProfileDashboard from "./pages/ProfileDashboard";
@@ -60,6 +62,8 @@ export default function App() {
                 <Route path="/live" element={<LivePage />} />
                 <Route path="/profile" element={<ProfileDashboard />} />
                 <Route path="/search" element={<SearchPage />} />
+                <Route path="/playlists" element={<PlaylistsPage />} />
+                <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
               </Route>
             </Routes>
           </main>
