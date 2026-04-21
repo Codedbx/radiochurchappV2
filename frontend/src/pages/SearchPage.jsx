@@ -14,8 +14,15 @@ export default function SearchPage() {
   const { isLoggedIn } = useAuthStore();
   const { setCurrentMessage } = usePlayerStore();
   const { openAuthModal } = useAppStore();
+  const messages = [
+    { id: 1, title: "Faith in Action", category: "Faith", speaker: "Pastor John", date: "Mar 12, 2024", audioUrl: "https://example.com/faith-in-action.mp3" },
+    { id: 2, title: "The Power of Prayer", category: "Spirituality", speaker: "Pastor Mary", date: "Mar 10, 2024", audioUrl: "https://example.com/power-of-prayer.mp3" },
+    { id: 3, title: "Living in Grace", category: "Life", speaker: "Pastor Chris", date: "Mar 8, 2024", audioUrl: "https://example.com/living-in-grace.mp3" },
+    { id: 4, title: "God's Love Revealed", category: "Theology", speaker: "Pastor John", date: "Mar 5, 2024", audioUrl: "https://example.com/gods-love.mp3" },
+    { id: 5, title: "Breaking Free", category: "Deliverance", speaker: "Pastor Sarah", date: "Mar 1, 2024", audioUrl: "https://example.com/breaking-free.mp3" },
+  ];
 
-  useEffect(() => {
+  useEffect(() => { 
     if (query) {
       const filtered = messages.filter(msg =>
         msg.title.toLowerCase().includes(query.toLowerCase()) ||

@@ -727,8 +727,8 @@ export default function HomePage() {
               </CardContent>
             </Card>
             <Card className="border-0 bg-transparent shadow-none dark:bg-[#1c253b] dark:border dark:border-slate-700/50 dark:shadow-xl">
-              <CardContent className="p-6">
-                <ScrollArea className="h-96">
+              <CardContent className="px-6">
+                <ScrollArea className="">
                   <div className="space-y-4">
                     {comments.map((c) => (
                       <motion.div
