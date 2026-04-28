@@ -3,13 +3,14 @@ import { usePlayerStore } from '../stores/playerStore';
 
 export const useAudioPlayer = () => {
   const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(75);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
-  const { isLiveStream, currentMessage } = usePlayerStore();
+  const { isLiveStream, currentMessage, isPlaying, setIsPlaying } = usePlayerStore();
 
   // Determine audio source
   const audioSrc = currentMessage?.audioUrl || 'https://radio.ifastekpanel.com:1765/stream';
@@ -26,7 +27,7 @@ export const useAudioPlayer = () => {
 
   // Play/pause
   const togglePlayPause = () => {
-    setIsPlaying(prev => !prev);
+    setIsPlaying(!isPlaying);
     setError(null);
   };
 
@@ -40,6 +41,14 @@ export const useAudioPlayer = () => {
     setVolume(newVolume[0]);
     if (newVolume[0] === 0 && !isMuted) setIsMuted(true);
     if (newVolume[0] > 0 && isMuted) setIsMuted(false);
+  };
+
+  // Seek function
+  const seek = (seconds) => {
+    if (audioRef.current && isFinite(seconds)) {
+      audioRef.current.currentTime = seconds;
+      setCurrentTime(seconds);
+    }
   };
 
   // Audio events
@@ -58,12 +67,23 @@ export const useAudioPlayer = () => {
       setIsLoading(false);
       setError('Failed to play audio. Please try again.');
     };
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onDurationChange = () => {
+      if (isFinite(audio.duration)) setDuration(audio.duration);
+    };
+    const onEnded = () => {
+      setCurrentTime(0);
+      setIsPlaying(false);
+    };
 
     audio.addEventListener('canplaythrough', onCanPlay);
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('error', onError);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('durationchange', onDurationChange);
+    audio.addEventListener('ended', onEnded);
 
     return () => {
       audio.removeEventListener('canplaythrough', onCanPlay);
@@ -71,6 +91,9 @@ export const useAudioPlayer = () => {
       audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('error', onError);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('durationchange', onDurationChange);
+      audio.removeEventListener('ended', onEnded);
     };
   }, []);
 
@@ -100,5 +123,8 @@ export const useAudioPlayer = () => {
     toggleMute,
     handleVolumeChange,
     audioSrc,
+    currentTime,
+    duration,
+    seek,
   };
 };

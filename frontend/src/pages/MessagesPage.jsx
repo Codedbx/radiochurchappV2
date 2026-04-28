@@ -1,173 +1,157 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { Play, Disc3, Pause, Headphones } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useAppStore } from "@/stores/appStore";
 
 const categories = [
-  "All",
-  "Faith",
-  "Spirituality",
-  "Life",
-  "Theology",
-  "Deliverance",
-  "Prayer",
-  "Worship",
-  "Healing",
-  "Prophecy",
+  "All", "Faith", "Spirituality", "Life", "Theology",
+  "Deliverance", "Prayer", "Worship", "Healing", "Prophecy",
 ];
 
 const messages = [
   {
-    id: 1,
-    title: "Faith in Action",
-    category: "Faith",
-    speaker: "Pastor John",
-    date: "Mar 12, 2024",
-    image: "/images/house-exterior.jpg",
+    id: 1, title: "Faith in Action", category: "Faith", speaker: "Pastor John",
+    date: "Mar 12, 2024", duration: "45:30", image: "/images/house-exterior.jpg",
     audioUrl: "https://example.com/faith-in-action.mp3",
-    plays: "12.5K",
-    description:
-      "Discover how to put your faith into action in everyday life through practical examples and biblical teachings.",
-    episodes: [
-      {
-        id: 101,
-        title: "Faith in Action - Part 1",
-        duration: "25:30",
-        date: "12 Mar, 2024",
-      },
-      {
-        id: 102,
-        title: "Faith in Action - Part 2",
-        duration: "28:15",
-        date: "11 Mar, 2024",
-      },
-    ],
+    description: "Discover how to put your faith into action in everyday life.",
   },
   {
-    id: 2,
-    title: "The Power of Prayer",
-    category: "Spirituality",
-    speaker: "Pastor Mary",
-    date: "Mar 10, 2024",
-    image: "/images/house-exterior.jpg",
+    id: 2, title: "The Power of Prayer", category: "Spirituality", speaker: "Pastor Mary",
+    date: "Mar 10, 2024", duration: "52:15", image: "/images/house-exterior.jpg",
     audioUrl: "https://example.com/power-of-prayer.mp3",
-    plays: "18.2K",
-    description:
-      "Learn about the transformative power of prayer and how to develop a deeper prayer life.",
-    episodes: [
-      {
-        id: 201,
-        title: "Understanding Prayer",
-        duration: "22:45",
-        date: "10 Mar, 2024",
-      },
-      {
-        id: 202,
-        title: "Prayer in Practice",
-        duration: "26:30",
-        date: "9 Mar, 2024",
-      },
-    ],
+    description: "Learn about the transformative power of prayer.",
   },
   {
-    id: 3,
-    title: "Living in Grace",
-    category: "Life",
-    speaker: "Pastor Chris",
-    date: "Mar 8, 2024",
-    image: "/images/house-exterior.jpg",
+    id: 3, title: "Living in Grace", category: "Life", speaker: "Pastor Chris",
+    date: "Mar 8, 2024", duration: "41:20", image: "/images/house-exterior.jpg",
     audioUrl: "https://example.com/living-in-grace.mp3",
-    plays: "15.8K",
-    description:
-      "Explore what it means to live in God's grace and how it transforms our daily walk.",
-    episodes: [
-      {
-        id: 301,
-        title: "Grace Defined",
-        duration: "24:20",
-        date: "8 Mar, 2024",
-      },
-      {
-        id: 302,
-        title: "Walking in Grace",
-        duration: "27:10",
-        date: "7 Mar, 2024",
-      },
-    ],
+    description: "Explore what it means to live in God's grace.",
   },
   {
-    id: 4,
-    title: "God's Love Revealed",
-    category: "Theology",
-    speaker: "Pastor John",
-    date: "Mar 5, 2024",
-    image: "/images/house-exterior.jpg",
+    id: 4, title: "God's Love Revealed", category: "Theology", speaker: "Pastor John",
+    date: "Mar 5, 2024", duration: "38:45", image: "/images/house-exterior.jpg",
     audioUrl: "https://example.com/gods-love.mp3",
-    plays: "20.1K",
-    description:
-      "A deep dive into understanding the depth and breadth of God's unconditional love for us.",
-    episodes: [
-      {
-        id: 401,
-        title: "The Nature of God's Love",
-        duration: "30:15",
-        date: "5 Mar, 2024",
-      },
-      {
-        id: 402,
-        title: "Experiencing God's Love",
-        duration: "28:45",
-        date: "4 Mar, 2024",
-      },
-    ],
+    description: "A deep dive into understanding the depth of God's love.",
   },
   {
-    id: 5,
-    title: "Breaking Free",
-    category: "Deliverance",
-    speaker: "Pastor Sarah",
-    date: "Mar 1, 2024",
-    image: "/images/house-exterior.jpg",
+    id: 5, title: "Breaking Free", category: "Deliverance", speaker: "Pastor Sarah",
+    date: "Mar 1, 2024", duration: "55:10", image: "/images/house-exterior.jpg",
     audioUrl: "https://example.com/breaking-free.mp3",
-    plays: "22.7K",
-    description:
-      "Find freedom from bondage and discover the liberty that comes through Christ.",
-    episodes: [
-      {
-        id: 501,
-        title: "Identifying Bondage",
-        duration: "26:50",
-        date: "1 Mar, 2024",
-      },
-      {
-        id: 502,
-        title: "Steps to Freedom",
-        duration: "29:20",
-        date: "29 Feb, 2024",
-      },
-    ],
+    description: "Find freedom from bondage and discover liberty.",
   },
 ];
 
-export default function MessagesPage() {
+// ─── MessageCard Component ────────────────────────────────────────────────────
+function MessageCard({ message }) {
   const navigate = useNavigate();
+  const { currentMessage, isPlaying, setCurrentMessage, setIsPlaying } = usePlayerStore();
   const { isLoggedIn } = useAuthStore();
-  const { setCurrentMessage } = usePlayerStore();
   const { openAuthModal } = useAppStore();
-  const [activeCategory, setActiveCategory] = useState("All");
 
-  const handlePlayMessage = (message) => {
-    if (!isLoggedIn) {
-      openAuthModal("login");
-      return;
+  const isCurrentlyPlaying =
+    (currentMessage?.episodeId === message.id || currentMessage?.id === message.id) && isPlaying;
+
+  const handlePlay = (e) => {
+    e.stopPropagation();
+    if (!isLoggedIn) { openAuthModal("login"); return; }
+    if (isCurrentlyPlaying) {
+      setIsPlaying(false);
+    } else {
+      setCurrentMessage({ ...message, episodes: messages, episodeId: message.id });
     }
-    setCurrentMessage(message);
   };
+
+  return (
+    <div
+      onClick={() => navigate(`/message/${message.id}`, { state: { message } })}
+      className="group cursor-pointer flex flex-col gap-3 shrink-0 w-[160px] sm:w-auto snap-start"
+    >
+      {/* Square Thumbnail */}
+      <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-lg bg-slate-800 ring-1 ring-white/10 transition-all duration-300 group-hover:scale-[1.03] group-hover:shadow-violet-500/20">
+        <img
+          src={message.image}
+          alt="cover"
+          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${isCurrentlyPlaying ? "opacity-40 blur-[2px]" : ""}`}
+        />
+
+        {/* Overlay */}
+        <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isCurrentlyPlaying ? "bg-black/20" : "bg-black/0 group-hover:bg-black/40"}`}>
+          {isCurrentlyPlaying ? (
+            <>
+              {/* Animated equalizer */}
+              <div className="flex items-end gap-[3px] h-8">
+                <div className="w-[3px] bg-violet-400 h-3 animate-[bounce_0.8s_ease-in-out_infinite]" style={{ animationDelay: "0ms" }} />
+                <div className="w-[3px] bg-violet-400 h-8 animate-[bounce_0.8s_ease-in-out_infinite]" style={{ animationDelay: "150ms" }} />
+                <div className="w-[3px] bg-violet-400 h-5 animate-[bounce_0.8s_ease-in-out_infinite]" style={{ animationDelay: "300ms" }} />
+                <div className="w-[3px] bg-violet-400 h-7 animate-[bounce_0.8s_ease-in-out_infinite]" style={{ animationDelay: "100ms" }} />
+              </div>
+              {/* Pause on hover */}
+              <button
+                onClick={handlePlay}
+                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Pause className="h-10 w-10 text-white fill-current" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handlePlay}
+              className="w-12 h-12 rounded-full bg-violet-600 text-white flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-xl hover:scale-110 active:scale-95"
+            >
+              <Play className="h-6 w-6 fill-current ml-1" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Metadata */}
+      <div className="flex flex-col min-w-0">
+        <h3 className={`text-sm sm:text-base font-extrabold truncate leading-tight mb-0.5 tracking-tight ${isCurrentlyPlaying ? "text-violet-600 dark:text-violet-400" : "text-slate-900 dark:text-white"}`}>
+          {message.title}
+        </h3>
+        <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+          <span>{message.date.split(",")[1]?.trim() || message.date}</span>
+          <span className="opacity-30">•</span>
+          <span className="truncate">{message.speaker}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Carousel Row ─────────────────────────────────────────────────────────────
+function CarouselRow({ title, items }) {
+  return (
+    <div className="px-2">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
+          {title}
+        </h2>
+        <button className="text-[10px] sm:text-xs font-bold text-slate-500 hover:text-violet-600 uppercase tracking-widest transition-colors">
+          Show all
+        </button>
+      </div>
+
+      {/* Mobile: horizontal swipe carousel | Desktop: grid */}
+      <div className="flex sm:grid overflow-x-auto sm:overflow-visible gap-4 sm:gap-y-8 scrollbar-hide snap-x snap-mandatory sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 pb-2">
+        {items.length > 0 ? (
+          items.map((msg) => <MessageCard key={msg.id} message={msg} />)
+        ) : (
+          <div className="col-span-full py-16 text-center">
+            <Headphones className="h-12 w-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
+            <p className="text-slate-500 dark:text-slate-400 font-medium">No messages in this category yet.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+export default function MessagesPage() {
+  const [activeCategory, setActiveCategory] = useState("All");
 
   const filtered =
     activeCategory === "All"
@@ -175,88 +159,69 @@ export default function MessagesPage() {
       : messages.filter((m) => m.category === activeCategory);
 
   return (
-    <div className="space-y-4">
-      {/* Category Filter Tabs */}
-      <div
-        className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              activeCategory === cat
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+    <div className="bg-transparent">
+
+      {/* ── Hero Banner ── */}
+      <div className="relative pt-12 sm:pt-20 pb-16 sm:pb-24 px-4 md:px-8 overflow-hidden bg-white/70 dark:bg-slate-900/60 backdrop-blur-3xl w-screen left-1/2 -ml-[50vw] -mt-8 [mask-image:linear-gradient(to_bottom,black_80%,transparent)]">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute -top-[30%] -right-[10%] w-[70%] h-[100%] rounded-full bg-violet-400/10 dark:bg-violet-600/10 blur-[100px] pointer-events-none" />
+          <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[80%] rounded-full bg-purple-300/10 dark:bg-purple-800/10 blur-[100px] pointer-events-none" />
+        </div>
+
+        <div className="relative z-10 max-w-[90rem] mx-auto flex flex-col sm:flex-row items-center sm:items-end gap-6 sm:gap-10 px-6">
+          <div className="w-32 h-32 sm:w-48 sm:h-48 shrink-0 bg-gradient-to-br from-violet-500 to-purple-700 rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-500">
+            <Disc3 className="w-16 h-16 sm:w-24 sm:h-24 text-white opacity-90" />
+          </div>
+
+          <div className="text-center sm:text-left">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300 mb-2 sm:mb-4 block">
+              Official Archive
+            </span>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 sm:mb-6 leading-none">
+              All Messages
+            </h1>
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-lg font-medium max-w-xl mx-auto sm:mx-0">
+              The complete collection of weekly broadcasts, teachings, and podcasts. Listen natively.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {filtered.map((message) => (
-        <motion.div
-          key={message.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start justify-between p-4 bg-white backdrop-blur-sm rounded-xl shadow-lg border-0 dark:bg-slate-800/70 hover:shadow-xl transition cursor-pointer"
-          onClick={() =>
-            navigate(`/message/${message.id}`, { state: { message } })
-          }
-        >
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <img
-              src={message.image}
-              alt={message.title}
-              className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                {message.title}
-              </h3>
-              <div className="flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-400">
-                <Badge
-                  variant="outline"
-                  className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-400"
-                >
-                  {message.category}
-                </Badge>
-                <span>{message.speaker}</span>
-                <span>{message.date}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-            {isLoggedIn ? (
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePlayMessage(message);
-                }}
-                className="text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-900/20"
+      {/* ── Content Area ── */}
+      <div className="relative max-w-7xl mx-auto px-2 sm:px-8 -mt-8 sm:-mt-12 z-20">
+
+        {/* Category Tabs */}
+        <div className="sticky top-16 z-30 mb-8 pb-4">
+          <div
+            className="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory pt-2 px-4 sm:px-0 -mx-4 sm:mx-0"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap snap-start ${
+                  activeCategory === cat
+                    ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30 scale-105"
+                    : "bg-white/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"
+                }`}
               >
-                <Play className="h-5 w-5" />
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openAuthModal("login");
-                }}
-                className="text-xs border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20"
-              >
-                Sign in to play
-              </Button>
-            )}
+                {cat}
+              </button>
+            ))}
           </div>
-        </motion.div>
-      ))}
+        </div>
+
+        {/* Carousel Sections */}
+        <div className="w-full space-y-12 pb-24">
+          <CarouselRow title="Popular Releases" items={messages} />
+          <CarouselRow
+            title={activeCategory === "All" ? "Trending Today" : `Top in ${activeCategory}`}
+            items={filtered}
+          />
+        </div>
+
+      </div>
     </div>
   );
 }

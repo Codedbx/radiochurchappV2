@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu, X, LogOut, User, Heart, Search } from "lucide-react";
@@ -13,16 +13,29 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, user, logout } = useAuthStore();
   const { openAuthModal } = useAppStore();
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
-      setIsMobileMenuOpen(false);
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Live search: dynamically navigate and update results as the user types
+    if (value.trim()) {
+      navigate(`/search?q=${encodeURIComponent(value.trim())}`, { 
+        replace: location.pathname === '/search' 
+      });
+    } else if (location.pathname === '/search') {
+      // Clear the query if they backspace everything
+      navigate(`/search`, { replace: true });
     }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    // Results already loaded via typing, just dismiss the menu if on mobile
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -71,30 +84,42 @@ export default function Navbar() {
                   }, 50);
                 }
               }}
-              className="text-slate-700 dark:text-slate-300 hover:text-violet-600 transition cursor-pointer"
+              className={`transition cursor-pointer font-medium ${
+                location.pathname === "/"
+                  ? "text-violet-600 dark:text-violet-400"
+                  : "text-slate-700 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400"
+              }`}
             >
               Home
             </button>
             <Link
               to="/messages"
-              className="text-slate-700 dark:text-slate-300 hover:text-violet-600 transition"
+              className={`transition font-medium ${
+                location.pathname === "/messages"
+                  ? "text-violet-600 dark:text-violet-400"
+                  : "text-slate-700 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400"
+              }`}
             >
               Messages
             </Link>
             {isLoggedIn && (
               <Link
                 to="/favorites"
-                className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-violet-600 transition"
+                className={`flex items-center gap-2 transition font-medium ${
+                  location.pathname === "/favorites"
+                    ? "text-violet-600 dark:text-violet-400"
+                    : "text-slate-700 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400"
+                }`}
               >
                 <Heart className="h-4 w-4" /> Favorites
               </Link>
             )}
-            <form onSubmit={handleSearch} className="relative w-64">
+            <form onSubmit={handleSearchSubmit} className="relative w-64">
               <Input
                 type="search"
                 placeholder="Search messages..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-8 pr-2 py-1 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
               />
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
@@ -182,13 +207,21 @@ export default function Navbar() {
                     }
                     setIsMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left px-2 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md"
+                  className={`block w-full text-left px-2 py-2 rounded-md font-medium ${
+                    location.pathname === "/"
+                      ? "bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
                 >
                   Home
                 </button>
                 <Link
                   to="/messages"
-                  className="block px-2 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md"
+                  className={`block px-2 py-2 rounded-md font-medium ${
+                    location.pathname === "/messages"
+                      ? "bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Messages
@@ -196,18 +229,22 @@ export default function Navbar() {
                 {isLoggedIn && (
                   <Link
                     to="/favorites"
-                    className="block px-2 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md"
+                    className={`block px-2 py-2 rounded-md font-medium ${
+                      location.pathname === "/favorites"
+                        ? "bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Favorites
                   </Link>
                 )}
-                <form onSubmit={handleSearch} className="relative">
+                <form onSubmit={handleSearchSubmit} className="relative">
                   <Input
                     type="search"
                     placeholder="Search messages..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearchChange}
                     className="pl-8 pr-2 py-1 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
                   />
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />

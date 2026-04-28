@@ -49,7 +49,7 @@ export default function DesktopLayout({ audioProps }) {
   };
 
   return (
-    <div className="container max-w-[90rem] mx-auto px-6 py-8 pb-24">
+    <div className="container max-w-[90rem] mx-auto px-6 py-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Sidebar - Player */}
         {isHome && (
@@ -200,6 +200,9 @@ export default function DesktopLayout({ audioProps }) {
         toggleMute={audioProps.toggleMute}
         volume={audioProps.volume}
         handleVolumeChange={audioProps.handleVolumeChange}
+        currentTime={audioProps.currentTime}
+        duration={audioProps.duration}
+        seek={audioProps.seek}
       />
     </div>
   );

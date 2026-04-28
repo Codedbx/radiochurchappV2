@@ -84,6 +84,10 @@ export default function MessageDetailPage() {
   };
 
   const handlePlayEpisode = (episode) => {
+    if (!isLoggedIn) {
+      openAuthModal("login");
+      return;
+    }
     // Create a message object for the episode
     const episodeMessage = {
       ...message,
@@ -95,6 +99,10 @@ export default function MessageDetailPage() {
   };
 
   const handlePlayAll = () => {
+    if (!isLoggedIn) {
+      openAuthModal("login");
+      return;
+    }
     setIsPlaying(!isPlaying);
     if (!isPlaying) {
       setCurrentMessage(message);

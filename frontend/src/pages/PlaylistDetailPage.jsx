@@ -1,29 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useFavoritesStore } from "@/stores/favoritesStore";
 import { useAppStore } from "@/stores/appStore";
 import {
   ArrowLeft,
-  Share2,
   MoreVertical,
   Play,
   Heart,
   Clock,
   Music,
   Pause,
-  ListMusic,
 } from "lucide-react";
 
 export default function PlaylistDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const { setCurrentMessage, isPlaying: playerIsPlaying } = usePlayerStore();
+  const { setCurrentMessage, isPlaying, setIsPlaying } = usePlayerStore();
   const { isLoggedIn } = useAuthStore();
   const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
   const { openAuthModal } = useAppStore();
@@ -48,8 +44,8 @@ export default function PlaylistDetailPage() {
     id: id || passedPlaylist.id,
   };
 
-  // Sample tracks for the playlist - using real messages from the app
-  const tracks = [
+  // Base sample tracks for the playlist
+  const baseTracks = [
     {
       id: 1,
       title: "Faith in Action",
@@ -59,8 +55,7 @@ export default function PlaylistDetailPage() {
       audioUrl: "https://example.com/faith-in-action.mp3",
       image: "/images/house-exterior.jpg",
       category: "Faith",
-      description:
-        "Discover how to put your faith into action in everyday life through practical examples and biblical teachings.",
+      description: "Discover how to put your faith into action in everyday life.",
     },
     {
       id: 2,
@@ -71,8 +66,7 @@ export default function PlaylistDetailPage() {
       audioUrl: "https://example.com/power-of-prayer.mp3",
       image: "/images/house-exterior.jpg",
       category: "Spirituality",
-      description:
-        "Learn about the transformative power of prayer and how to develop a deeper prayer life.",
+      description: "Learn about the transformative power of prayer.",
     },
     {
       id: 3,
@@ -83,8 +77,7 @@ export default function PlaylistDetailPage() {
       audioUrl: "https://example.com/living-in-grace.mp3",
       image: "/images/house-exterior.jpg",
       category: "Life",
-      description:
-        "Explore what it means to live in God's grace and how it transforms our daily walk.",
+      description: "Explore what it means to live in God's grace.",
     },
     {
       id: 4,
@@ -95,8 +88,7 @@ export default function PlaylistDetailPage() {
       audioUrl: "https://example.com/gods-love.mp3",
       image: "/images/house-exterior.jpg",
       category: "Theology",
-      description:
-        "A deep dive into understanding the depth and breadth of God's unconditional love for us.",
+      description: "A deep dive into understanding God's love.",
     },
     {
       id: 5,
@@ -107,10 +99,19 @@ export default function PlaylistDetailPage() {
       audioUrl: "https://example.com/breaking-free.mp3",
       image: "/images/house-exterior.jpg",
       category: "Deliverance",
-      description:
-        "Find freedom from bondage and discover the liberty that comes through Christ.",
+      description: "Find freedom and discover liberty through Christ.",
     },
   ];
+
+  // Dynamically generate the exact number of messages to match playlist.count
+  const tracks = Array.from({ length: playlist.count || baseTracks.length }).map((_, i) => {
+    const base = baseTracks[i % baseTracks.length];
+    return {
+      ...base,
+      id: `${playlist.id}-track-${i + 1}`,
+      title: `${base.title} ${i >= baseTracks.length ? `(Pt. ${Math.floor(i / baseTracks.length) + 1})` : ""}`,
+    };
+  });
 
   const isLiked = isFavorite(playlist.id);
 
@@ -127,285 +128,194 @@ export default function PlaylistDetailPage() {
   };
 
   const handlePlayTrack = (track) => {
+    if (!isLoggedIn) {
+      openAuthModal("login");
+      return;
+    }
+
+    // Toggle play/pause if clicking the same track
+    const currentMsg = usePlayerStore.getState().currentMessage;
+    if (currentMsg?.episodeId === track.id) {
+      setIsPlaying(!isPlaying);
+      return;
+    }
+
     const trackMessage = {
-      id: track.id,
+      id: playlist.id, // Keep playlist ID for context
       title: track.title,
       speaker: track.speaker,
       audioUrl: track.audioUrl,
       image: playlist.image,
       category: "Playlist Track",
       description: `From ${playlist.title}`,
+      episodes: tracks, // Attach the full playlist for navigation
+      episodeId: track.id // Mark the current track so we know where we are in the list
     };
     setCurrentMessage(trackMessage);
   };
 
   const handlePlayAll = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying && tracks.length > 0) {
-      handlePlayTrack(tracks[0]);
+    if (!isLoggedIn) {
+      openAuthModal("login");
+      return;
+    }
+
+    if (tracks.length > 0) {
+      const currentMsg = usePlayerStore.getState().currentMessage;
+      // Check if any track from THIS playlist is currently loaded
+      const isThisPlaylistPlaying = tracks.some(t => t.id === currentMsg?.episodeId);
+      
+      if (!isThisPlaylistPlaying) {
+        handlePlayTrack(tracks[0]);
+      } else {
+        setIsPlaying(!isPlaying);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen pb-20 md:pb-6 overflow-visible">
-      {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center px-4 py-3">
-        <button
-          onClick={() => navigate("/playlists")}
-          className="p-2 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-full transition text-slate-700 dark:text-slate-300 cursor-pointer"
-        >
-          <ArrowLeft className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Desktop Layout */}
-      <div className="hidden lg:block w-full max-w-7xl mx-auto px-4 overflow-visible">
-        <div className="grid grid-cols-[380px_1fr] gap-6 items-start overflow-visible min-h-screen">
-          {/* Left Column - Playlist Info Card */}
-          <div className="bg-slate-800 dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl pb-20">
-            <div className="sticky top-4 z-10">
-              <div className="relative">
-                <img
-                  src={playlist.image}
-                  alt={playlist.title}
-                  className="w-full aspect-square object-cover"
-                />
-              </div>
-
-              <div className="p-6">
-                <h1 className="text-2xl font-bold text-white mb-2">
-                  {playlist.title}
-                </h1>
-                <p className="text-slate-400 text-sm mb-4">
-                  {playlist.description}
-                </p>
-
-                <div className="flex items-center gap-3 text-sm text-slate-400 mb-6">
-                  <span className="flex items-center gap-1">
-                    <Music className="h-4 w-4" />
-                    {playlist.count} tracks
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {playlist.duration}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <Button
-                    onClick={handlePlayAll}
-                    className="w-full bg-white hover:bg-slate-100 text-slate-900 h-12 text-base rounded-full shadow-lg font-semibold"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5 mr-2" />
-                    ) : (
-                      <Play className="h-5 w-5 mr-2" />
-                    )}
-                    Play all
-                  </Button>
-
-                  <button
-                    onClick={handleToggleFavorite}
-                    className={`w-full flex items-center justify-center gap-2 h-12 rounded-full font-semibold transition ${
-                      isLiked
-                        ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-slate-700 hover:bg-slate-600 text-white"
-                    }`}
-                  >
-                    <Heart
-                      className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`}
-                    />
-                    {isLiked ? "Liked" : "Like"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Tracks List */}
-          <div className="space-y-4">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {playlist.count} Messages
-              </h2>
-            </div>
-
-            {/* Tracks */}
-            <div className="space-y-2">
-              {tracks.map((track, index) => (
-                <div
-                  key={track.id}
-                  className="flex gap-4 p-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition cursor-pointer group"
-                  onClick={() => handlePlayTrack(track)}
-                >
-                  {/* Thumbnail */}
-                  <div className="relative shrink-0 w-40 h-24 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700">
-                    <img
-                      src={track.image}
-                      alt={track.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* Duration badge */}
-                    <div className="absolute bottom-1 right-1 bg-slate-900/90 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded font-medium">
-                      {track.duration}
-                    </div>
-                    {/* Play overlay */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                        <Play className="h-5 w-5 text-slate-900 ml-0.5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 dark:text-white mb-1 line-clamp-2">
-                      {track.title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                      <span>{track.speaker}</span>
-                      <span>•</span>
-                      <span>{track.date}</span>
-                    </div>
-                  </div>
-
-                  {/* More options */}
-                  <button
-                    className="p-2 opacity-0 group-hover:opacity-100 transition shrink-0 self-start"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Handle more options
-                    }}
-                  >
-                    <MoreVertical className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="bg-transparent">
+      {/* Immersive Hero Header */}
+      <div className="relative pt-8 sm:pt-16 pb-8 sm:pb-12 px-4 sm:px-8 overflow-hidden bg-white/70 dark:bg-slate-900/60 backdrop-blur-3xl w-screen left-1/2 -ml-[50vw] -mt-8 [mask-image:linear-gradient(to_bottom,black_80%,transparent)]">
+        <div className="absolute inset-0 z-0">
+           <div className="absolute top-0 left-0 w-full h-[150%] bg-[radial-gradient(circle_at_20%_30%,rgba(139,92,246,0.1),transparent_50%)]" />
         </div>
-      </div>
+        
+        <div className="relative z-10 max-w-[90rem] mx-auto flex flex-col sm:flex-row items-center sm:items-end gap-6 sm:gap-10 px-4 mt-2 sm:mt-4">
+          <button 
+            onClick={() => navigate(-1)}
+            className="absolute -top-8 sm:-top-12 left-4 sm:left-6 p-2 rounded-full bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 transition-all text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-white/5 shadow-sm"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
 
-      {/* Mobile/Tablet Layout */}
-      <div className="lg:hidden w-full max-w-5xl mx-auto px-4 py-4 md:py-8 space-y-4">
-        {/* Playlist Header */}
-        <div className="flex gap-4">
-          <div className="relative shrink-0">
-            <img
-              src={playlist.image}
-              alt={playlist.title}
-              className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover shadow-lg"
-            />
+          {/* Playlist Cover Art - Premium Shadow */}
+          <div className="w-40 h-40 sm:w-64 sm:h-64 shrink-0 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500 bg-slate-800">
+             <img src={playlist.image} alt={playlist.title} className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <ListMusic className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-              <span className="text-xs font-medium text-violet-600 dark:text-violet-400 uppercase tracking-wide">
-                Playlist
-              </span>
-            </div>
-            <h1 className="text-xl md:text-2xl font-bold mb-2 text-slate-900 dark:text-white">
+          
+          <div className="text-center sm:text-left flex-1 min-w-0 w-full">
+            <span className="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300 mb-2 sm:mb-4 block">
+              Official Playlist
+            </span>
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-3 sm:mb-6 leading-none truncate px-2 sm:px-0">
               {playlist.title}
             </h1>
-            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-              <span className="flex items-center gap-1">
-                <Music className="h-3 w-3" />
-                {playlist.count} tracks
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {playlist.duration}
-              </span>
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-lg font-medium max-w-2xl mb-6 sm:mb-8 line-clamp-2 px-4 sm:px-0">
+              {playlist.description}
+            </p>
+
+            {/* Action Row - Elevated Premium Controls */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-6">
+               <Button 
+                onClick={handlePlayAll}
+                className="bg-violet-600 hover:bg-violet-700 text-white h-12 sm:h-16 px-6 sm:px-12 rounded-full shadow-lg shadow-violet-500/25 font-black text-sm sm:text-lg transition-all duration-300 hover:scale-105 active:scale-95 group/play flex-1 sm:flex-none"
+               >
+                 <div className="flex items-center gap-2 sm:gap-3">
+                   {isPlaying ? (
+                     <Pause className="h-5 w-5 sm:h-7 sm:w-7 transition-transform group-hover/play:scale-110" />
+                   ) : (
+                     <Play className="h-5 w-5 sm:h-7 sm:w-7 fill-current transition-transform group-hover/play:scale-110" />
+                   )}
+                   <span className="uppercase tracking-wider">{isPlaying ? 'Pause' : 'Play All'}</span>
+                 </div>
+               </Button>
+
+               <button 
+                onClick={handleToggleFavorite}
+                className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-500 transform hover:scale-110 active:scale-90 relative overflow-hidden shrink-0 ${
+                  isLiked 
+                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' 
+                  : 'bg-white/40 dark:bg-slate-800/40 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-white/10 hover:bg-white/60 dark:hover:bg-slate-700/60'
+                }`}
+               >
+                 <Heart className={`h-5 w-5 sm:h-7 sm:w-7 transition-all duration-300 ${isLiked ? 'fill-current animate-pulse' : 'group-hover:scale-110'}`} />
+               </button>
+
+               <div className="flex flex-col gap-1 sm:ml-4 py-1 sm:py-2 border-l border-slate-300/50 dark:border-white/10 pl-4 sm:pl-6">
+                  <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                    <Music className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {playlist.count} Messages
+                  </div>
+                  <div className="flex items-center gap-2 text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {playlist.duration} Total Time
+                  </div>
+               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          {playlist.description}
-        </p>
+      {/* Tracklist Area */}
+      <div className="relative max-w-7xl mx-auto px-2 sm:px-8 -mt-8 sm:-mt-12 z-20 pb-12">
+        <div className="w-full mt-8 sm:mt-12">
+          {/* Header Row */}
+          <div className="hidden sm:flex items-center px-4 py-2 border-b border-slate-200 dark:border-white/10 mb-4 opacity-50">
+            <div className="w-12 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">#</div>
+            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Title</div>
+            <div className="w-24 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</div>
+          </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handlePlayAll}
-            className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white h-14 text-base rounded-full shadow-lg font-semibold"
-          >
-            {isPlaying ? (
-              <Pause className="h-5 w-5 mr-2" />
-            ) : (
-              <Play className="h-5 w-5 mr-2" />
-            )}
-            Play all
-          </Button>
-          <button
-            onClick={handleToggleFavorite}
-            className={`p-4 rounded-full transition shrink-0 ${
-              isLiked
-                ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800/50"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-            }`}
-          >
-            <Heart className={`h-6 w-6 ${isLiked ? "fill-current" : ""}`} />
-          </button>
-        </div>
+          <div className="space-y-1 sm:space-y-0.5">
+            {tracks.map((track, index) => {
+              const currentMsg = usePlayerStore.getState().currentMessage;
+              const isCurrentlyPlaying = currentMsg?.episodeId === track.id && isPlaying;
 
-        {/* Tracks List */}
-        <div className="space-y-3">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {playlist.count} Messages
-          </h2>
-          {tracks.map((track, index) => (
-            <div
-              key={track.id}
-              className="flex gap-3 p-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition cursor-pointer group"
-              onClick={() => handlePlayTrack(track)}
-            >
-              {/* Thumbnail */}
-              <div className="relative shrink-0 w-32 h-20 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700">
-                <img
-                  src={track.image}
-                  alt={track.title}
-                  className="w-full h-full object-cover"
-                />
-                {/* Duration badge */}
-                <div className="absolute bottom-1 right-1 bg-slate-900/90 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded font-medium">
-                  {track.duration}
-                </div>
-                {/* Play overlay */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                    <Play className="h-4 w-4 text-slate-900 ml-0.5" />
+              return (
+                <div
+                  key={track.id}
+                  className="group relative flex items-center justify-between p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-lg hover:bg-slate-200/40 dark:hover:bg-white/5 transition-all cursor-pointer border border-transparent active:scale-[0.98] sm:active:scale-100"
+                  onClick={() => handlePlayTrack(track)}
+                >
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="w-5 sm:w-12 flex justify-center items-center shrink-0">
+                      {isCurrentlyPlaying ? (
+                         <div className="flex items-end gap-[2px] h-3 sm:h-4">
+                            <div className="w-[2px] sm:w-[3px] bg-violet-600 dark:bg-violet-400 h-2 animate-[pulse_1s_ease-in-out_infinite]" />
+                            <div className="w-[2px] sm:w-[3px] bg-violet-600 dark:bg-violet-400 h-4 animate-[pulse_1.2s_ease-in-out_infinite]" />
+                            <div className="w-[2px] sm:w-[3px] bg-violet-600 dark:bg-violet-400 h-3 animate-[pulse_0.8s_ease-in-out_infinite]" />
+                         </div>
+                      ) : (
+                        <>
+                          <span className="text-[13px] sm:text-sm font-bold text-slate-400 dark:text-slate-500 group-hover:hidden">{index + 1}</span>
+                          <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-current hidden group-hover:block text-slate-900 dark:text-white" />
+                        </>
+                      )}
+                    </div>
+                    
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded bg-slate-800 shrink-0 overflow-hidden shadow-sm">
+                       <img src={track.image} className="w-full h-full object-cover" />
+                    </div>
+
+                    <div className="flex flex-col min-w-0">
+                      <h3 className={`text-[15px] sm:text-base font-bold truncate tracking-tight ${isCurrentlyPlaying ? 'text-violet-600 dark:text-violet-400' : 'text-slate-900 dark:text-white'}`}>
+                        {track.title}
+                      </h3>
+                      <p className="text-[12px] sm:text-sm text-slate-500 dark:text-slate-400 truncate font-medium">{track.speaker}</p>
+                    </div>
+                  </div>
+
+                  <div className="w-20 sm:w-24 flex justify-center items-center">
+                    <div className="text-[12px] sm:text-sm font-bold text-slate-500 dark:text-slate-400 group-hover:opacity-0 transition-opacity">
+                      {track.duration}
+                    </div>
+
+                    <div className="absolute right-2 sm:right-4 opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center">
+                       <button className="p-2 sm:p-2.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500 dark:text-slate-400">
+                          <MoreVertical className="h-5 w-5" />
+                       </button>
+                    </div>
+
+                    {/* Always visible more button on mobile */}
+                    <div className="sm:hidden ml-2">
+                       <button className="p-1 text-slate-400">
+                          <MoreVertical className="h-5 w-5" />
+                       </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-slate-900 dark:text-white mb-1 line-clamp-2">
-                  {track.title}
-                </h3>
-                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                  <span>{track.speaker}</span>
-                  <span>•</span>
-                  <span>{track.date}</span>
-                </div>
-              </div>
-
-              {/* More options */}
-              <button
-                className="p-2 opacity-0 group-hover:opacity-100 transition shrink-0 self-start"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Handle more options
-                }}
-              >
-                <MoreVertical className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
